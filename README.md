@@ -1,3 +1,9 @@
+# eML Project
+
+Docs: TBD
+
+# ---- FROM Edge Impulse Example, TODO: DELETE THIS -----
+
 # Edge Impulse Example: standalone inferencing (Espressif ESP32)
 
 This repository runs an exported impulse on the Espressif ESP32. See the documentation at [Running your impulse locally](https://docs.edgeimpulse.com/docs/running-your-impulse-locally-1).
