@@ -199,6 +199,7 @@ extern "C" int app_main()
         .resolution_hz = SERVO_TIMEBASE_RESOLUTION_HZ,
         .count_mode = MCPWM_TIMER_COUNT_MODE_UP,
         .period_ticks = SERVO_TIMEBASE_PERIOD,
+        .intr_priority = NULL,
     };
     ESP_ERROR_CHECK(mcpwm_new_timer(&timer_config, &timer));
 
@@ -214,6 +215,7 @@ extern "C" int app_main()
     ESP_LOGI(TAG, "Create comparator and generator from the operator");
     mcpwm_cmpr_handle_t comparator = NULL;
     mcpwm_comparator_config_t comparator_config;
+    comparator_config.intr_priority = NULL;
     comparator_config.flags.update_cmp_on_tez = true;
     ESP_ERROR_CHECK(mcpwm_new_comparator(oper, &comparator_config, &comparator));
 
@@ -241,24 +243,17 @@ extern "C" int app_main()
     //control loop
     int angle = 0;
     int step = 5;
-    while (1) {
-        
         //Add delay, since it takes time for servo to rotate, usually 200ms/60degree rotation under 5V power supply
         
-        angle =  -38;
-        ESP_ERROR_CHECK(mcpwm_comparator_set_compare_value(comparator, example_angle_to_compare(angle)));
-        angle = 50;
-        ei_sleep(200);
-        ESP_ERROR_CHECK(mcpwm_comparator_set_compare_value(comparator, example_angle_to_compare(angle)));
-        ei_sleep(5000);
-    }
+        
+    
+
     //Camera init
     if(ESP_OK != init_camera()) {
         return ESP_FAIL;
     }
     //Rest init
     setup_led();
-    ei_sleep(100);
 
     ei_impulse_result_t result = { nullptr };
 
@@ -298,10 +293,17 @@ extern "C" int app_main()
 
         //CAMERA: Return the frame buffer to 
         esp_camera_fb_return(framebuffer_ptr);
-
+        if(result.bounding_boxes_count >= 1) {
+            angle =  -38;
+            ESP_ERROR_CHECK(mcpwm_comparator_set_compare_value(comparator, example_angle_to_compare(angle)));
+            angle = 50;
+            ESP_ERROR_CHECK(mcpwm_comparator_set_compare_value(comparator, example_angle_to_compare(angle)));
+        }
         print_inference_result(result);
-
+        
         gpio_set_level(LED_PIN, 0);
+        
+        
         
     }
 }
