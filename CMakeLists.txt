@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.13.1)
 set (CMAKE_CXX_STANDARD 17)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+
+set(EXTRA_COMPONENT_DIRS ssd1306)
+
 project(ei_standalone_esp32)
 
 idf_build_set_property(COMPILE_OPTIONS "-fdiagnostics-color=always" APPEND)
