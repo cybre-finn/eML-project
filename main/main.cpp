@@ -449,7 +449,7 @@ extern "C" int app_main()
             //OLED painting algo: 
             // in: tempArray, bb.x, bb.y, bb.width, bb.height
             //out: tempArray
-            for(int i = 0; i < 16; ++i) {
+            for(int i = 0; i < 128; ++i) {
                 for(int j = 0; j < 64; ++j) {  //That's b/c ... TODO
                     //recalculate the 96*96 info to 64*64 to match the display TODO: This is hardcoded. Better use the size info, not 0.66.
                     int bb_x_64 = int(0.66*bb.x);
@@ -458,22 +458,24 @@ extern "C" int app_main()
                     int bb_height_64 = int(0.66*bb.height);
                     // Now the conditions for drawing the lines
                     // Left vertical line
-                    if(i==bb_x_64/8 && j>=bb_y_64 && j<=bb_y_64+bb_height_64) { // we interpret the x axis on the display as a row of bytes, thus divison by 8
+
+                    if(i==bb_x_64 && j>=bb_y_64 && j<=bb_y_64+bb_height_64) { // we interpret the x axis on the display as a row of bytes, thus divison by 8
                         int shift = 8 - bb_x_64 % 8;
-                        tempArray[j*16+i] = tempArray[j*16+i] | 0x01 << shift;
+                        tempArray[(j*128+i)/8] = tempArray[(j*128+i)/8] | 0x01 << (7 - (i % 8));
                     }
                     // Right vertical line
-                    if(i==(bb_x_64+bb_width_64)/8 && j>=bb_y_64 && j<=bb_y_64+bb_height_64) { //similar to left
-                        int shift = 8 - (bb_x_64+bb_width_64) % 8;
-                        tempArray[j*16+i] = tempArray[j*16+i] | 0x01 << shift;
+                    if(i==(bb_x_64+bb_width_64) && j>=bb_y_64 && j<=bb_y_64+bb_height_64) { //similar to left
+                        tempArray[(j*128+i)/8] = tempArray[(j*128+i)/8] | 0x01 << (7 - (i % 8));
+
                     }
+
                     // horizontal lines
-                    if((j==bb_y_64 || j==bb_y_64+bb_height_64) && i>=bb_x_64/8 && i<=bb_x_64/8+bb_width_64/8) { //Y interpreted as 64 "collumns" as "indices" for the x lines
-                        tempArray[j*16+i] = 0xFF;
+                    if((j==bb_y_64 || j==bb_y_64+bb_height_64) && i>=bb_x_64 && i<=bb_x_64 + bb_width_64) { //Y interpreted as 64 "collumns" as "indices" for the x lines
+                        tempArray[(j*128+i)/8] = tempArray[(j*128+i)/8] | 0x01 << (7 - (i % 8));
                     }
                     //draw right border line:
-                    if(i==8) {
-                        tempArray[j*16+i] = tempArray[j*16+i] | 0x01 << 7;
+                    if(i==64) {
+                        tempArray[(j*128+i)/8] = tempArray[(j*128+i)/8] | 0x01 << 7;
                     }
                 }
             }
